@@ -71,6 +71,8 @@ Chinese fallback fields:
 
 ## Translation
 
+# See the [project TODO list](TODO.md) for the planned translation pipeline and future improvements.
+
 When no English name exists, the converter can automatically translate Chinese text into English.
 
 To reduce API usage:
