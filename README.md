@@ -71,8 +71,6 @@ Chinese fallback fields:
 
 ## Translation
 
-# See the [project TODO list](TODO.md) for the planned translation pipeline and future improvements.
-
 When no English name exists, the converter can automatically translate Chinese text into English.
 
 To reduce API usage:
@@ -80,6 +78,10 @@ To reduce API usage:
 - duplicate strings are translated only once
 - translations are cached locally
 - cached translations are reused in future runs
+
+### See the [project TODO list](TODO.md) for the planned translation pipeline and future improvements.
+
+### Offline Translation: See the [Local Translator Setup Guide](LOCAL_TRANSLATOR.md) for installation instructions and configuration.
 
 ## Installation
 
