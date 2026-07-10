@@ -1,4 +1,4 @@
-name: Convert JSON
+name: Convert JSON & Release
 
 on:
   push:
@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -33,8 +35,70 @@ jobs:
           git add output.json
 
           if git diff --cached --quiet; then
-            echo "No changes."
+            echo "changed=false" >> $GITHUB_ENV
           else
             git commit -m "Update output.json"
             git push
+            echo "changed=true" >> $GITHUB_ENV
           fi
+
+      - name: Generate release information
+        run: |
+          echo "DATE=$(date -u +'%Y.%m.%d')" >> $GITHUB_ENV
+          echo "TIME=$(date -u +'%H:%M:%S UTC')" >> $GITHUB_ENV
+          echo "TAG=v$(date -u +'%Y.%m.%d')r${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create Release Notes
+        run: |
+          cat > RELEASE.md <<EOF
+          # Damage Attribute Database
+
+          ## Overview
+
+          This release contains the latest generated simplified damage attribute database.
+
+          ## Contents
+
+          - output.json
+          - English-only names
+          - Generated automatically from the latest source data
+
+          ---
+
+          ## Build Information
+
+          | Property | Value |
+          |----------|-------|
+          | Release Tag | ${{ env.TAG }} |
+          | Date | ${{ env.DATE }} |
+          | Time (UTC) | ${{ env.TIME }} |
+          | Workflow | ${{ github.workflow }} |
+          | Run Number | ${{ github.run_number }} |
+          | Run Attempt | ${{ github.run_attempt }} |
+          | Branch | ${{ github.ref_name }} |
+          | Commit | ${{ github.sha }} |
+          | Repository | ${{ github.repository }} |
+          | Triggered By | ${{ github.actor }} |
+          | Event | ${{ github.event_name }} |
+
+          ---
+
+          ## Files
+
+          - output.json
+
+          ---
+
+          Generated automatically using GitHub Actions.
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.TAG }}
+          body_path: RELEASE.md
+          files: |
+            output.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
